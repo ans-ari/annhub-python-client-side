@@ -18,7 +18,9 @@ A collection of easy-to-use code examples for ANNHUB Python library, which deliv
 In this structure:
 * **app.py**: Contain your application's logic and UI development.
 * **Dockerfile**: Docker's config to build your docker image. Replace your host in **line 6**, your host is obtained from server-side application's address.
+
 ![Docker instruction](figures/Dockerfile.png)
+
 * **requirements.txt**: Reuse our example if you don't import any additional library.
 
 2. In your working directory, build your application as an docker image.
