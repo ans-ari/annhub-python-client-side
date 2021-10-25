@@ -19,7 +19,7 @@ uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
 
 
 OUTPUT = 'total_earnings (output)'
-URL = '{}/api/v1/predict'.format('http://18.140.115.149:8080')
+URL = '{}/api/v1/predict'.format(os.environ['host'])
 
 def predict(data):
     data = data[1].values.flatten().tolist()
