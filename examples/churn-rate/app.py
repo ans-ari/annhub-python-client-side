@@ -18,20 +18,25 @@ st.write('''# *Client Churn Predictor*''')
 uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
 
 
-THRESHOLD = 0.22
+THRESHOLD = 0.36
 OUTPUT = 'Churn(output)'
 URL = '{}/api/v1/predict'.format(os.environ['host'])
+
 
 def predict(data):
     data = data[1].values.flatten().tolist()
     data = str(data)
     resp = requests.post(URL,data=data)
     json_data = json.loads(resp.text)
-    prediction = float(json_data["prediction"][0])
+    if "prediction" in json_data:
+            prediction = float(json_data["prediction"][0])
+    else:
+        raise ValueError(json_data['detail'])
     return prediction
 
 if uploaded_file:
     input_df = pd.read_csv(uploaded_file)
+
     st.write(
     '''
     ### Input Data ({} Customers)
@@ -42,19 +47,23 @@ if uploaded_file:
 
     # Remove output column in test set
     if OUTPUT in input_df.columns:
-        X = input_df.drop([OUTPUT],axis=1)
+        input_df.drop([OUTPUT],axis=1,inplace=True)
 
     ix_list = []
-    for ix,row in enumerate(X.iterrows()):
-        if predict(row) >= THRESHOLD:
+    leaving_services = []
+    for ix,row in enumerate(input_df.iterrows()):
+        leaving_proba = predict(row)
+        if leaving_proba >= THRESHOLD:
             ix_list.append(ix)
-    
+            leaving_services.append(round(leaving_proba,2))
 
     
     st.write('''### Number of Potentially Churning Customers''')
     st.write('''There are **{} customers** at risk of closing their accounts.'''.format(len(ix_list)))
 
-    csv = input_df.iloc[ix_list].to_csv(index=False)
+    result_df = input_df.iloc[ix_list]
+    result_df['Leaving service probability'] = leaving_services
+    csv = result_df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
     st.write('''''')
     st.write('''''')

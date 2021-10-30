@@ -26,7 +26,10 @@ def predict(data):
     data = str(data)
     resp = requests.post(URL,data=data)
     json_data = json.loads(resp.text)
-    prediction = float(json_data["prediction"][0])
+    if "prediction" in json_data:
+        prediction = float(json_data["prediction"][0])
+    else:
+        raise ValueError(json_data['detail'])
     return prediction
 
 if uploaded_file:
@@ -41,15 +44,18 @@ if uploaded_file:
 
     # Remove output column in test set
     if OUTPUT in input_df.columns:
-        X = input_df.drop([OUTPUT],axis=1)
+        features_df = input_df.drop([OUTPUT],axis=1)
+    else:
+        features_df = input_df
 
     price_list = []
-    for row in X.iterrows():
-        price_list.append(predict(row))
+    for row in features_df.iterrows():
+        predicted_revenue = predict(row)
+        price_list.append(round(predicted_revenue,2))
     
     price_series = pd.Series(price_list)
 
-    result_df = input_df.merge(price_series.rename('sale price'),left_index=True, right_index=True)
+    result_df = input_df.merge(price_series.rename('Predicted Revenue'),left_index=True, right_index=True)
     csv = result_df.to_csv(index=False)
     
     b64 = base64.b64encode(csv.encode()).decode()
