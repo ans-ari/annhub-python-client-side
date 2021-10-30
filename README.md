@@ -42,7 +42,7 @@ $ docker build --tag anscenterari/sale-price-prediction .
  ```
  4. Run your application within a docker container:
  ```
- $ docker run -d -p 8051:8051 anscenterari/sale-price-prediction
+ $ docker run -d -p 8501:8501 anscenterari/sale-price-prediction
  ```
  5. Push your docker image to the remote repository (dockerhub)
  ```
